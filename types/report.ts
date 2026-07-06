@@ -15,6 +15,8 @@ export interface ScoreBreakdown {
   readability: number;
   keyword: number;
   technical: number;
+  /** 0 in reports saved before the GEO analyzer existed. */
+  geo: number;
 }
 
 export interface ReportInput {

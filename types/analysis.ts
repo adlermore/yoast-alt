@@ -16,6 +16,7 @@ export type AnalyzerCategory =
   | "keyword"
   | "technical"
   | "schema"
+  | "geo"
   | "images"
   | "links"
   | "meta"
@@ -78,6 +79,20 @@ export interface AnalyzerResult {
   summary: ScoreSummary;
 }
 
+/** What an AI platform's crawler does with fetched pages. */
+export type AiBotRole = "search" | "assistant" | "training";
+
+/** robots.txt access verdict for one known AI crawler. */
+export interface AiBotAccess {
+  /** The crawler's user-agent token, e.g. "GPTBot". */
+  agent: string;
+  /** Human-readable platform, e.g. "OpenAI (ChatGPT training)". */
+  platform: string;
+  role: AiBotRole;
+  /** Whether robots.txt allows this bot to fetch the site root. */
+  allowed: boolean;
+}
+
 /**
  * HTTP response metadata captured when a page is fetched by URL. Lets the
  * technical analyzer assess response-level signals (status, headers, robots.txt,
@@ -92,6 +107,10 @@ export interface HttpMeta {
   redirected: boolean;
   robotsTxtFound: boolean;
   sitemapFound: boolean;
+  /** Per-bot robots.txt verdicts; present when robots.txt was readable. */
+  aiBots?: AiBotAccess[];
+  /** Whether /llms.txt exists at the origin. */
+  llmsTxtFound?: boolean;
 }
 
 /** Optional inputs that steer analysis (e.g. the focus keyword). */

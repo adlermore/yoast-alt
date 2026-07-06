@@ -24,3 +24,20 @@ export const READABILITY_THRESHOLDS = {
 export const KEYWORD_THRESHOLDS = {
   density: { min: 0.5, max: 2.5, stuffing: 3 },
 } as const;
+
+/**
+ * Google desktop truncation budgets in pixels (titles render at 20px Arial,
+ * descriptions at 14px). Pixel width — not character count — is what decides
+ * whether a snippet gets cut off. `min` flags under-used space.
+ */
+export const SERP_PIXEL_LIMITS = {
+  title: { min: 285, max: 580 },
+  description: { min: 680, max: 920 },
+} as const;
+
+export const GEO_THRESHOLDS = {
+  /** Average words per paragraph above which content is hard for LLMs to quote. */
+  paragraphWords: 110,
+  /** Word count above which the absence of any list/table is worth flagging. */
+  structuredFactsMinWords: 300,
+} as const;

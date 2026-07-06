@@ -1,12 +1,13 @@
 import type { Check, ParsedDocument } from "@/types";
 import { createCheck } from "@/lib/scores";
-import { SEO_THRESHOLDS } from "@/constants/thresholds";
-import { classifyLength } from "../length";
+import { SEO_THRESHOLDS, SERP_PIXEL_LIMITS } from "@/constants/thresholds";
+import { classifyPixelWidth, titlePixelWidth } from "../pixel-width";
 
-/** Title presence and length (the single most important on-page element). */
+/** Title presence and SERP width (the single most important on-page element). */
 export function checkTitle(doc: ParsedDocument): Check[] {
   const { title, titleLength } = doc.meta;
   const range = SEO_THRESHOLDS.title;
+  const pixelRange = SERP_PIXEL_LIMITS.title;
 
   if (!title) {
     return [
@@ -39,38 +40,41 @@ export function checkTitle(doc: ParsedDocument): Check[] {
     }),
   ];
 
-  const verdict = classifyLength(titleLength, range);
-  const lengthNote = `Current length: ${titleLength} characters (recommended ${range.min}–${range.max}).`;
+  // Google truncates by rendered pixel width, not character count — a title of
+  // narrow letters fits where the same count of wide letters gets cut off.
+  const width = titlePixelWidth(title);
+  const verdict = classifyPixelWidth(width, pixelRange);
+  const widthNote = `Estimated width: ${width}px of ~${pixelRange.max}px available (${titleLength} characters).`;
 
   if (verdict === "ok") {
     checks.push(
       createCheck({
         id: "title-length",
-        title: "Title length",
+        title: "Title width in search results",
         status: "pass",
-        detail: lengthNote,
+        detail: widthNote,
         weight: 2,
       }),
     );
   } else {
-    const tooLong = verdict === "long" || verdict === "too-long";
+    const truncated = verdict === "truncated";
     checks.push(
       createCheck({
         id: "title-length",
-        title: "Title length",
-        status: verdict === "too-long" ? "error" : "warning",
-        detail: lengthNote,
+        title: "Title width in search results",
+        status: truncated ? "error" : "warning",
+        detail: widthNote,
         weight: 2,
         recommendation: {
-          problem: tooLong
-            ? "The title is longer than recommended and may be truncated in search results."
-            : "The title is shorter than recommended and under-uses valuable space.",
+          problem: truncated
+            ? "The title is wider than Google's desktop display budget and will be truncated with an ellipsis."
+            : "The title is much narrower than the available space and under-uses the snippet.",
           reason:
-            "Search engines display roughly 50–60 characters; titles outside this range read poorly or get cut off.",
-          howToFix: tooLong
-            ? "Trim the title to 60 characters or fewer while keeping the primary topic first."
-            : "Expand the title toward 50–60 characters with descriptive, relevant wording.",
-          priority: verdict === "too-long" ? "high" : "medium",
+            "Google cuts titles at roughly 580px of rendered width (about 55–65 characters depending on the letters used), not at a fixed character count.",
+          howToFix: truncated
+            ? `Trim the title until it fits within ~${pixelRange.max}px (roughly ${range.max} characters), keeping the primary topic first.`
+            : `Expand the title toward ${range.min}–${range.max} characters with descriptive, relevant wording.`,
+          priority: truncated ? "high" : "medium",
           impact: "Medium — affects click-through rate from search results.",
         },
       }),

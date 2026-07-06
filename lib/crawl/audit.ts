@@ -117,6 +117,59 @@ export function buildAuditReport(result: CrawlResult): AuditReport {
     items: redirects.map((p) => `${p.url} → ${p.redirectTo}`),
   });
 
+  // Redirect chains and loops: walk the redirect graph from every redirecting
+  // URL. Chains are reported once from their head (a URL nothing redirects to);
+  // loops have no head, so they are deduped by their member set instead.
+  const redirectTarget = new Map(
+    redirects.map((p) => [p.url, p.redirectTo!] as const),
+  );
+  const redirectDestinations = new Set(redirectTarget.values());
+  const redirectChains: string[] = [];
+  const redirectLoops: string[] = [];
+  const seenLoops = new Set<string>();
+  for (const [start, firstHop] of redirectTarget) {
+    if (!redirectTarget.has(firstHop)) continue; // single hop — covered above
+    const visited = new Set([start]);
+    const path = [start];
+    let current: string | undefined = firstHop;
+    let looped = false;
+    while (current) {
+      path.push(current);
+      if (visited.has(current)) {
+        looped = true;
+        break;
+      }
+      visited.add(current);
+      current = redirectTarget.get(current);
+    }
+    if (looped) {
+      const key = [...visited].sort().join("|");
+      if (!seenLoops.has(key)) {
+        seenLoops.add(key);
+        redirectLoops.push(path.join(" → "));
+      }
+    } else if (!redirectDestinations.has(start)) {
+      redirectChains.push(`${path.join(" → ")} (${path.length - 1} hops)`);
+    }
+  }
+  specs.push({
+    id: "redirect-loops",
+    title: "Redirect loops",
+    severity: "critical",
+    calibration: "CONFIRMED",
+    detail: "Redirects that circle back on themselves — these URLs never resolve.",
+    items: redirectLoops,
+  });
+  specs.push({
+    id: "redirect-chains",
+    title: "Redirect chains",
+    severity: "warning",
+    calibration: "CONFIRMED",
+    detail:
+      "Multi-hop redirects slow crawling and dilute link equity — point the first URL straight at the final destination.",
+    items: redirectChains,
+  });
+
   // --- Canonicals ---
   const crossHostCanonical = contentPages.filter(
     (p) => p.canonical && !sameSite(p.canonical, result.baseUrl),
@@ -137,6 +190,57 @@ export function buildAuditReport(result: CrawlResult): AuditReport {
     calibration: "POSSIBLE",
     detail: "No canonical URL declared.",
     items: missingCanonical.map((p) => p.url),
+  });
+
+  // Canonical conflicts: the canonical target was crawled and is itself a
+  // redirect, an error page, or noindexed — contradictory signals Google
+  // resolves by ignoring or mistrusting the canonical.
+  const pageByUrl = new Map(pages.map((p) => [p.url, p] as const));
+  const canonicalToRedirect: string[] = [];
+  const canonicalToBroken: string[] = [];
+  const canonicalToNoindex: string[] = [];
+  for (const p of contentPages) {
+    if (!p.canonical || p.canonical === p.url) continue;
+    const target = pageByUrl.get(p.canonical);
+    if (!target) continue; // target not crawled — nothing confirmable
+    if (target.redirectTo) {
+      canonicalToRedirect.push(
+        `${p.url} → canonical ${p.canonical} (redirects to ${target.redirectTo})`,
+      );
+    } else if (target.status >= 400) {
+      canonicalToBroken.push(
+        `${p.url} → canonical ${p.canonical} (HTTP ${target.status})`,
+      );
+    } else if (target.noindex) {
+      canonicalToNoindex.push(`${p.url} → canonical ${p.canonical} (noindex)`);
+    }
+  }
+  specs.push({
+    id: "canonical-to-broken",
+    title: "Canonical points to a broken page",
+    severity: "critical",
+    calibration: "CONFIRMED",
+    detail:
+      "The declared canonical returns 4xx/5xx — the canonical is ignored and the page's indexing becomes unpredictable.",
+    items: canonicalToBroken,
+  });
+  specs.push({
+    id: "canonical-to-redirect",
+    title: "Canonical points to a redirect",
+    severity: "warning",
+    calibration: "CONFIRMED",
+    detail:
+      "The declared canonical itself redirects — point the canonical straight at the final URL.",
+    items: canonicalToRedirect,
+  });
+  specs.push({
+    id: "canonical-to-noindex",
+    title: "Canonical points to a noindex page",
+    severity: "warning",
+    calibration: "CONFIRMED",
+    detail:
+      "The canonical target is noindexed — contradictory signals that can drop both URLs from the index.",
+    items: canonicalToNoindex,
   });
 
   // --- On-page ---

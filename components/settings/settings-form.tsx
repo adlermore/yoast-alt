@@ -30,6 +30,12 @@ const TOGGLES: readonly ToggleMeta[] = [
     label: "Schema analyzer",
     description: "Structured-data detection, validity, and required-property checks.",
   },
+  {
+    key: "geo",
+    label: "GEO / AI Search analyzer",
+    description:
+      "AI crawler access (robots.txt), llms.txt, and passage-level citability for AI Overviews, ChatGPT, and Perplexity.",
+  },
 ];
 
 /** Toggle which optional analyzers run. SEO always runs; keyword runs when a keyword is set. */

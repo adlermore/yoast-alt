@@ -10,6 +10,7 @@
 import "server-only";
 import type { HttpMeta } from "@/types";
 import { MAX_HTML_CHARS } from "@/constants/limits";
+import { evaluateAiBotAccess } from "@/lib/geo/ai-bots";
 
 const USER_AGENT =
   "Mozilla/5.0 (compatible; SearchlightBot/1.0; +SEO analysis workbench)";
@@ -73,14 +74,29 @@ async function fetchWithTimeout(
 }
 
 /** Probe robots.txt at the origin; also report whether it declares a sitemap. */
-async function probeRobots(origin: string): Promise<{ found: boolean; sitemap: boolean }> {
+async function probeRobots(
+  origin: string,
+): Promise<{ found: boolean; sitemap: boolean; body: string | null }> {
   try {
     const res = await fetchWithTimeout(`${origin}/robots.txt`);
-    if (!res.ok) return { found: false, sitemap: false };
+    if (!res.ok) return { found: false, sitemap: false, body: null };
     const body = (await res.text()).slice(0, 100_000);
-    return { found: true, sitemap: /^\s*sitemap:/im.test(body) };
+    return { found: true, sitemap: /^\s*sitemap:/im.test(body), body };
   } catch {
-    return { found: false, sitemap: false };
+    return { found: false, sitemap: false, body: null };
+  }
+}
+
+/** Probe the /llms.txt convention (a Markdown site map for AI assistants). */
+async function probeLlmsTxt(origin: string): Promise<boolean> {
+  try {
+    const res = await fetchWithTimeout(`${origin}/llms.txt`);
+    if (!res.ok) return false;
+    const type = res.headers.get("content-type") ?? "";
+    // Soft-404s answer with an HTML error page; the real file is plain text.
+    return !type.includes("html");
+  } catch {
+    return false;
   }
 }
 
@@ -128,9 +144,10 @@ export async function fetchPage(rawUrl: string): Promise<FetchPageResult> {
   const html = rawHtml.length > MAX_HTML_CHARS ? rawHtml.slice(0, MAX_HTML_CHARS) : rawHtml;
 
   const origin = url.origin;
-  const [robots, sitemapFallback] = await Promise.all([
+  const [robots, sitemapFallback, llmsTxtFound] = await Promise.all([
     probeRobots(origin),
     probeSitemap(origin),
+    probeLlmsTxt(origin),
   ]);
 
   const http: HttpMeta = {
@@ -140,6 +157,8 @@ export async function fetchPage(rawUrl: string): Promise<FetchPageResult> {
     redirected: response.redirected,
     robotsTxtFound: robots.found,
     sitemapFound: robots.sitemap || sitemapFallback,
+    aiBots: robots.body !== null ? evaluateAiBotAccess(robots.body) : undefined,
+    llmsTxtFound,
   };
 
   return { ok: true, page: { html, http } };

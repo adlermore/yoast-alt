@@ -9,6 +9,7 @@ export interface AnalyzerToggles {
   readability: boolean;
   technical: boolean;
   schema: boolean;
+  geo: boolean;
 }
 
 export interface AppSettings {
@@ -20,5 +21,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
     readability: true,
     technical: true,
     schema: true,
+    geo: true,
   },
 };

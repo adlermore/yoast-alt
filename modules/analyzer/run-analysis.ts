@@ -19,6 +19,7 @@ import { readabilityAnalyzer } from "@/lib/readability";
 import { technicalAnalyzer } from "@/lib/technical";
 import { schemaAnalyzer } from "@/lib/schema";
 import { keywordAnalyzer } from "@/lib/keyword";
+import { geoAnalyzer } from "@/lib/geo";
 import { normalizeScore, weightedAverage } from "@/lib/scores";
 
 /** Toggles for the optional analyzers (SEO is always on). */
@@ -26,6 +27,7 @@ export interface RunOptions {
   readability?: boolean;
   technical?: boolean;
   schema?: boolean;
+  geo?: boolean;
 }
 
 export function runAnalysis(
@@ -42,6 +44,7 @@ export function runAnalysis(
   if (options.readability !== false) analyzers.push(readabilityAnalyzer);
   if (options.technical !== false) analyzers.push(technicalAnalyzer);
   if (options.schema !== false) analyzers.push(schemaAnalyzer);
+  if (options.geo !== false) analyzers.push(geoAnalyzer);
 
   const results = analyzers.map((analyzer) => analyzer.analyze(doc, context));
 
@@ -60,6 +63,7 @@ export function runAnalysis(
       readability: scoreFor("readability"),
       keyword: scoreFor("keyword"),
       technical: scoreFor("technical"),
+      geo: scoreFor("geo"),
     },
   };
 }
