@@ -6,3 +6,4 @@ export type * from "./report";
 export type * from "./settings";
 export type * from "./crawl";
 export type * from "./pagespeed";
+export type * from "./cleaner";

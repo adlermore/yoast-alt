@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Braces,
   BookOpen,
+  Brush,
   Code2,
   FileText,
   Gauge,
@@ -46,6 +47,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Insights",
     items: [
       { title: "Content Editor", href: "/content", icon: PencilRuler },
+      { title: "HTML Cleaner", href: "/cleaner", icon: Brush },
       { title: "PageSpeed", href: "/pagespeed", icon: Zap },
       { title: "Technical SEO", href: "/technical", icon: Wrench },
       { title: "Keyword", href: "/keyword", icon: KeyRound },
