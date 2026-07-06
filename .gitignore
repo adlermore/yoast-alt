@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# runtime data (saved reports, settings) — user-generated, not source
+/data
+
 # debug
 npm-debug.log*
 yarn-debug.log*
