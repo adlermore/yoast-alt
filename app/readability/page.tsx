@@ -13,6 +13,7 @@ export default function ReadabilityPage() {
       <div className="space-y-8">
         <PageHeader
           title="Readability"
+          helpKey="readability"
           description="Paste HTML to assess how easy the visible text is to read — Flesch reading ease, sentence and paragraph length, subheading distribution, passive voice, and transition words."
         />
         <AnalyzerWorkbench

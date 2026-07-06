@@ -13,6 +13,7 @@ export default function AnalyzeTextPage() {
       <div className="space-y-8">
         <PageHeader
           title="Analyze Text"
+          helpKey="analyze-text"
           description="Paste plain article text to assess readability and, optionally, focus-keyword targeting. No markup required."
         />
         <AnalyzerWorkbench

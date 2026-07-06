@@ -14,6 +14,7 @@ export default function GeoPage() {
       <div className="space-y-8">
         <PageHeader
           title="GEO / AI Search"
+          helpKey="geo"
           description="Enter a URL to check whether AI platforms can crawl the site (robots.txt, llms.txt) and how citable the content is — question-led sections, quotable paragraphs, and structured facts."
         />
         <AnalyzerWorkbench

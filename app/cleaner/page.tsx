@@ -13,6 +13,7 @@ export default function HtmlCleanerPage() {
       <div className="space-y-8">
         <PageHeader
           title="HTML Cleaner"
+          helpKey="html-cleaner"
           description="Paste HTML from a CMS, Word, or Google Docs and strip the cruft — inline styles, classes, comments, empty tags, spans, and namespaced Word markup — into clean, publish-ready HTML."
         />
         <HtmlCleaner />

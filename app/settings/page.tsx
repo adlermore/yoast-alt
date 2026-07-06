@@ -18,6 +18,7 @@ export default async function SettingsPage() {
       <div className="space-y-8">
         <PageHeader
           title="Settings"
+          helpKey="settings"
           description="Preferences are persisted to data/settings.json — no database. Use the theme toggle in the top bar to switch light/dark."
         />
         <div className="max-w-2xl">

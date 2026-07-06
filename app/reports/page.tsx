@@ -23,6 +23,7 @@ export default async function ReportsPage() {
       <div className="space-y-8">
         <PageHeader
           title="Reports"
+          helpKey="reports"
           description="Saved analyses, stored as JSON files on disk — no database. Open one to revisit its full report, or delete it."
         />
 

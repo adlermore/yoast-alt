@@ -13,6 +13,7 @@ export default function SiteAuditorPage() {
       <div className="space-y-8">
         <PageHeader
           title="Site Auditor"
+          helpKey="surik-audit"
           description="Crawl a whole site like Googlebot (raw HTML, no JavaScript) and audit it against Google Search Central rules — broken links, redirects, canonicals, titles, duplicate content, orphans, crawl depth — with a calibrated health score."
         />
         <CrawlRunner tool="audit" defaultMaxPages={150} />

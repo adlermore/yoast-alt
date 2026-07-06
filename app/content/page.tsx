@@ -13,6 +13,7 @@ export default function ContentEditorPage() {
       <div className="space-y-8">
         <PageHeader
           title="Content Editor"
+          helpKey="content-editor"
           description="Write or paste content and check it live against your own standards — total length, sentence length, passive voice, and reading ease — with a scorecard, marked-up text, and a fix list."
         />
         <ContentEditor />

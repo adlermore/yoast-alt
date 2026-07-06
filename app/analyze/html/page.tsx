@@ -13,6 +13,7 @@ export default function AnalyzeHtmlPage() {
       <div className="space-y-8">
         <PageHeader
           title="Analyze HTML"
+          helpKey="analyze-html"
           description="Paste raw HTML markup to run the full analyzer suite and inspect its SEO-relevant structure. No crawling — parsing only."
         />
         <AnalyzerWorkbench

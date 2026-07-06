@@ -13,6 +13,7 @@ export default function KeywordPage() {
       <div className="space-y-8">
         <PageHeader
           title="Keyword Analysis"
+          helpKey="keyword"
           description="Paste HTML and a focus keyword to see how well the page targets it — placement across title, description, H1, intro, subheadings, URL, and image alt, plus body density."
         />
         <AnalyzerWorkbench

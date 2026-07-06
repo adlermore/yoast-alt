@@ -26,6 +26,7 @@ export default async function HistoryPage() {
       <div className="space-y-8">
         <PageHeader
           title="History"
+          helpKey="history"
           description="Every saved analysis in chronological order. Stored as JSON files — no database."
         />
 

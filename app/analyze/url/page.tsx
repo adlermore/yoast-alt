@@ -13,6 +13,7 @@ export default function AnalyzeUrlPage() {
       <div className="space-y-8">
         <PageHeader
           title="Analyze URL"
+          helpKey="analyze-url"
           description="Fetch a live page over HTTP and run every analyzer, including response-level technical checks (status, headers, robots.txt, sitemap)."
         />
         <AnalyzerWorkbench

@@ -13,6 +13,7 @@ export default function TechnicalPage() {
       <div className="space-y-8">
         <PageHeader
           title="Technical SEO"
+          helpKey="technical"
           description="Enter a URL to run response-level checks (status, headers, robots.txt, sitemap) alongside mixed-content and URL-structure analysis. JavaScript is not executed."
         />
         <AnalyzerWorkbench

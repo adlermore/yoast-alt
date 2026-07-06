@@ -13,6 +13,7 @@ export default function SchemaPage() {
       <div className="space-y-8">
         <PageHeader
           title="Schema"
+          helpKey="schema"
           description="Paste HTML to detect Schema.org structured data, verify it parses, and check recommended types and required properties for rich-result eligibility."
         />
         <AnalyzerWorkbench

@@ -13,6 +13,7 @@ export default function PageSpeedPage() {
       <div className="space-y-8">
         <PageHeader
           title="PageSpeed"
+          helpKey="pagespeed"
           description="Measure Core Web Vitals and performance with Google PageSpeed Insights (Lighthouse + Chrome UX Report). Field data is the real-user ranking signal; lab data is diagnostic — the two are shown separately."
         />
         <PageSpeedRunner />
