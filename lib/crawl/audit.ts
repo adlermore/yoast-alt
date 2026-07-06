@@ -250,7 +250,7 @@ export function buildAuditReport(result: CrawlResult): AuditReport {
   const severityRank: Record<AuditSeverity, number> = { critical: 0, warning: 1, notice: 2 };
   const issues: AuditIssue[] = specs
     .filter((spec) => spec.items.length > 0)
-    .map((spec) => ({ ...spec, count: spec.items.length, items: spec.items.slice(0, 200) }))
+    .map((spec) => ({ ...spec, count: spec.items.length, items: spec.items.slice(0, 2000) }))
     .sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
 
   // Transparent health score: start at 100, subtract a severity-weighted,

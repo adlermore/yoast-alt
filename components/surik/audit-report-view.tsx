@@ -1,4 +1,11 @@
-import { AlertTriangle, ChevronDown, Info } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronDown,
+  FileDown,
+  FileSpreadsheet,
+  FileText,
+  Info,
+} from "lucide-react";
 import type {
   AuditIssue,
   AuditReport,
@@ -6,6 +13,7 @@ import type {
   Calibration,
 } from "@/types";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScoreRing } from "@/components/scores/score-ring";
 import { cn } from "@/lib/utils";
@@ -57,14 +65,14 @@ function IssueRow({ issue }: { issue: AuditIssue }) {
         <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
       </summary>
       <ul className="max-h-72 overflow-auto border-t bg-muted/30 p-3 text-xs">
-        {issue.items.map((item, index) => (
+        {issue.items.slice(0, 100).map((item, index) => (
           <li key={index} className="break-words py-0.5 font-mono text-muted-foreground">
             {item}
           </li>
         ))}
-        {issue.count > issue.items.length ? (
+        {issue.count > Math.min(100, issue.items.length) ? (
           <li className="py-0.5 italic">
-            …and {issue.count - issue.items.length} more
+            …and {issue.count - Math.min(100, issue.items.length)} more (see export)
           </li>
         ) : null}
       </ul>
@@ -72,13 +80,42 @@ function IssueRow({ issue }: { issue: AuditIssue }) {
   );
 }
 
-export function AuditReportView({ report }: { report: AuditReport }) {
+function ExportBar({ jobId }: { jobId: string }) {
+  const formats: { format: string; label: string; icon: typeof FileText }[] = [
+    { format: "md", label: "Markdown", icon: FileText },
+    { format: "xlsx", label: "Excel", icon: FileSpreadsheet },
+    { format: "pdf", label: "PDF", icon: FileDown },
+  ];
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-sm text-muted-foreground">Export audit:</span>
+      {formats.map(({ format, label, icon: Icon }) => (
+        <Button key={format} asChild variant="outline" size="sm" className="gap-2">
+          <a href={`/api/surik/export/${jobId}?format=${format}`} download>
+            <Icon className="size-4" />
+            {label}
+          </a>
+        </Button>
+      ))}
+    </div>
+  );
+}
+
+export function AuditReportView({
+  report,
+  jobId,
+}: {
+  report: AuditReport;
+  jobId?: string;
+}) {
   const limitHit = report.limits.maxPagesHit || report.limits.depthLimitHit;
   const shownPages = report.pages.slice(0, PAGES_SHOWN);
   const maxDepthCount = Math.max(1, ...report.depthDistribution.map((d) => d.count));
 
   return (
     <div className="space-y-6">
+      {jobId ? <ExportBar jobId={jobId} /> : null}
+
       <Card className="p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-8">
           <ScoreRing score={report.score} />

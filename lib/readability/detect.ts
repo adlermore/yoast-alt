@@ -29,6 +29,38 @@ export function isPassiveSentence(sentence: string): boolean {
   return false;
 }
 
+const BE_PATTERN = [...BE_FORMS].join("|");
+
+export interface PassiveRange {
+  start: number;
+  end: number;
+}
+
+/**
+ * Locate passive-voice constructions within a sentence: a "to be" form,
+ * optionally followed by up to two adverbs, then a past participle (regular -ed
+ * or a known irregular). Returns character ranges so the UI can highlight the
+ * exact phrase (e.g. "were reviewed", "are increasingly influenced").
+ */
+export function findPassiveRanges(sentence: string): PassiveRange[] {
+  const re = new RegExp(
+    `\\b(?:${BE_PATTERN})\\b(?:\\s+[\\p{L}]+ly){0,2}\\s+([\\p{L}]+)`,
+    "giu",
+  );
+  const ranges: PassiveRange[] = [];
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(sentence)) !== null) {
+    const participle = match[1].toLowerCase();
+    const isParticiple =
+      IRREGULAR_PARTICIPLES.has(participle) ||
+      (participle.length > 3 && participle.endsWith("ed"));
+    if (isParticiple) {
+      ranges.push({ start: match.index, end: match.index + match[0].length });
+    }
+  }
+  return ranges;
+}
+
 /** Whether a sentence contains a transition word or phrase. */
 export function hasTransition(sentence: string): boolean {
   const lower = sentence.toLowerCase();

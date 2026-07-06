@@ -9,10 +9,12 @@ import {
   KeyRound,
   LayoutDashboard,
   Link2,
+  PencilRuler,
   ScrollText,
   Settings,
   Unlink,
   Wrench,
+  Zap,
 } from "lucide-react";
 
 export interface NavItem {
@@ -43,6 +45,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Insights",
     items: [
+      { title: "Content Editor", href: "/content", icon: PencilRuler },
+      { title: "PageSpeed", href: "/pagespeed", icon: Zap },
       { title: "Technical SEO", href: "/technical", icon: Wrench },
       { title: "Keyword", href: "/keyword", icon: KeyRound },
       { title: "Readability", href: "/readability", icon: BookOpen },

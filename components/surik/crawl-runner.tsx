@@ -185,7 +185,9 @@ export function CrawlRunner({
       {job?.result?.kind === "orphans" ? (
         <OrphanReportView report={job.result} />
       ) : null}
-      {job?.result?.kind === "audit" ? <AuditReportView report={job.result} /> : null}
+      {job?.result?.kind === "audit" ? (
+        <AuditReportView report={job.result} jobId={job.id} />
+      ) : null}
     </div>
   );
 }

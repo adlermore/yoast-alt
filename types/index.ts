@@ -5,3 +5,4 @@ export type * from "./analysis";
 export type * from "./report";
 export type * from "./settings";
 export type * from "./crawl";
+export type * from "./pagespeed";
